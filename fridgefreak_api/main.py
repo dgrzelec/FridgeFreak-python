@@ -9,7 +9,7 @@ from typing import Any, List, Optional, Union
 
 from fastapi import FastAPI, Query, APIRouter, HTTPException
 
-from .models import (
+from fridgefreak_api.models import (
     Product,
     StorageDeleteRequest,
     StorageGetResponse,
@@ -71,7 +71,7 @@ def p_o_s_t_storage(body: List[Product]) -> Any:
         products_dict[id] = product
         id += 1
         
-    return f"Added {len(body)} products"
+    return {"message": f"Added {len(body)} products"}
 
 
 @router.delete("/storage", response_model=Any, responses={"500": {"model": Any}})
@@ -89,7 +89,7 @@ def d_e_l_e_t_e_storage(
     responses={"404": {"model": ProductNotFoundResponse}},
 )
 async def g_e_t_storage_id(id: int) -> Union[Product, ProductNotFoundResponse]:
-    return get_product_by_id(id)
+    return await get_product_by_id(id)
 
 
 @router.delete(
