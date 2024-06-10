@@ -1,0 +1,218 @@
+{
+	"info": {
+		"_postman_id": "35a10917-0837-4076-a875-2321c2760e27",
+		"name": "fridge-freak",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "29167438",
+		"_collection_link": "https://dark-meadow-241337.postman.co/workspace/New-Team-Workspace~3beedb9a-2e66-411c-97da-cbdd2f334224/collection/28516540-35a10917-0837-4076-a875-2321c2760e27?action=share&source=collection_link&creator=29167438"
+	},
+	"item": [
+		{
+			"name": "/api/storage",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "localhost:8081/api/storage",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"api",
+						"storage"
+					],
+					"query": [
+						{
+							"key": "name",
+							"value": "",
+							"disabled": true
+						},
+						{
+							"key": "storage_space",
+							"value": "",
+							"disabled": true
+						},
+						{
+							"key": "category",
+							"value": "DIARY",
+							"disabled": true
+						},
+						{
+							"key": "quantity",
+							"value": "1",
+							"disabled": true
+						},
+						{
+							"key": "expire2date",
+							"value": "2023-07-30",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/api/storage/id",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n        \"quantity\": 2,\r\n        \"name\": \"Milk\",\r\n        \"storage_space\": \"FRIDGE\",\r\n        \"category\": \"DIARY\",\r\n        \"expire_by\": \"2023-07-25\"\r\n    }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8081/api/storage/1",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"api",
+						"storage",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/api/storage JSON",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[\r\n{\r\n\"name\": \"eggs\",\r\n\"quantity\": 10,\r\n\"category\": \"OTHER\",\r\n\"storage_space\": \"FRIDGE\",\r\n\"expire_by\": \"2023-07-31\"\r\n},\r\n{\r\n\"name\": \"tomato\",\r\n\"quantity\": 1,\r\n\"category\": \"VEGETABLE\",\r\n\"storage_space\": \"FRIDGE\",\r\n\"expire_by\": \"2023-07-22\"\r\n},\r\n{\r\n\"name\": \"Milk\",\r\n\"quantity\": 2,\r\n\"category\": \"DIARY\",\r\n\"storage_space\": \"FRIDGE\",\r\n\"expire_by\": \"2023-07-25\"\r\n}\r\n]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8081/api/storage",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"api",
+						"storage"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/api/storage XML",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "<Product>\r\n  <name>cookies</name>\r\n  <quantity>1</quantity>\r\n  <category>OTHER</category>\r\n  <storage_space>SHELF</storage_space>\r\n  <expire_by>2023-08-17</expire_by>\r\n</Product>\r\n",
+					"options": {
+						"raw": {
+							"language": "xml"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8081/api/storage",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"api",
+						"storage"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/api/storage",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    // \"category\": \"DIARY\"\r\n    \"name\": \"Milk\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8081/api/storage?in-database=false",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"api",
+						"storage"
+					],
+					"query": [
+						{
+							"key": "in-database",
+							"value": "false"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/api/storage/by-id-list",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"ids\": [1, 2, 3, 4, 5, 6, 7, 8]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8081/api/storage/by-id-list",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"api",
+						"storage",
+						"by-id-list"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

@@ -1,0 +1,288 @@
+openapi: 3.0.0
+info:
+  title: FridgeFreak-api
+  version: 1.2.0
+servers: []
+paths:
+  /storage:
+    get:
+      responses:
+        "200":
+          description: Get list of all products available in database with optional query
+            params
+          content:
+            application/json:
+              schema:
+                example:
+                  product_list_response_example:
+                    $ref: "#/components/examples/product_list_response_example"
+                properties:
+                  result_count:
+                    type: integer
+                  products:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Product"
+                required:
+                  - result_count
+                  - products
+      operationId: GET_storage
+      parameters:
+        - name: name
+          in: query
+          schema:
+            type: string
+        - name: storage_space
+          in: query
+          schema:
+            type: string
+        - name: category
+          in: query
+          schema:
+            type: string
+        - name: quantity
+          in: query
+          schema:
+            type: number
+        - name: expire2date
+          in: query
+          schema:
+            type: string
+            format: date
+    post:
+      responses:
+        "201":
+          description: ""
+          content:
+            application/json:
+              schema:
+                example:
+                  products_added: 2
+                  message: Product(s) added
+      description: Add product to database; if every property, except for quantity,
+        matches already existing entry in database then new item gets merged;
+        expects array of products in json or single product in xml
+      operationId: POST_storage
+      requestBody:
+        content:
+          application/json:
+            example:
+              product_list_example:
+               $ref: "#/components/examples/product_list_example"
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/Product"
+          application/xml:
+            example:
+              product_example_xml:
+                $ref: "#/components/examples/product_example_xml"
+            schema:
+              $ref: "#/components/schemas/Product"
+        required: true
+    delete:
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                example:
+                  message: Product deleted
+        "500":
+          description: ""
+          content:
+            application/json:
+              schema:
+                example:
+                  error: ambiguous request, multiple products meet criteria
+      description: Zeroes quantity of matching product in database; if in-database =
+        true erases given item completely from database
+      operationId: DELETE_storage
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                name:
+                  type: string
+                storage_space:
+                  type: string
+                category:
+                  type: string
+                expire_by:
+                  type: string
+                  format: date
+              type: object
+        required: true
+      parameters:
+        - name: in-database
+          in: query
+          required: true
+          schema:
+            type: boolean
+  /storage/{id}:
+    get:
+      responses:
+        "200":
+          description: Get product from database with specific ID
+          content:
+            application/json:
+              example:
+                product_example:
+                  $ref: "#/components/examples/product_example"
+              schema:
+                $ref: "#/components/schemas/Product"
+        "404":
+          $ref: "#/components/responses/ProductNotFound"
+      operationId: GET_storage-id
+    delete:
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                example:
+                  properties:
+                    message: Product with ID = {id} deleted
+        "404":
+          $ref: "#/components/responses/ProductNotFound"
+      description: Delete product with ID = {id}
+      operationId: DELETE_storage-id
+    put:
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                example:
+                  properties:
+                    message: Product with ID = {id} updated
+        "404":
+          $ref: "#/components/responses/ProductNotFound"
+      description: Update product with given ID
+      operationId: PUT_storage-id
+      requestBody:
+        content:
+          application/json:
+            example:
+              product_example:
+                $ref: "#/components/examples/product_example"
+            schema:
+              $ref: "#/components/schemas/Product"
+        required: true
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: number
+components:
+  schemas:
+  ###
+    Product:
+      type: object
+      properties:
+        name: 
+          type: string
+        quantity: 
+          type: number
+        category:
+          type: string
+          enum:
+            - MEAT
+            - DIARY
+            - VEGETABLE
+            - FRUIT
+            - SPICE
+            - OTHER
+        storage_space:
+          type: string
+          enum:
+            - FRIDGE
+            - SHELF
+            - OTHER  
+        expire_by:
+          type: string
+          format: date
+  ###
+  responses:
+    ProductNotFound:
+      description: Product with 'ID = {id}' not found.
+      content:
+        application/json:
+          schema:
+            example:
+              properties:
+                message: Product with ID = {id} not found.
+            properties:
+              message:
+                type: string
+            required:
+              - message
+  parameters: {}
+  examples: 
+    product_example_xml:
+      value: |
+        <Product>
+          <name>milk</name>
+          <quantity>1</quantity>
+          <category>DIARY</category>
+          <storage_space>FRIDGE</storage_space>
+          <expire_by>2023-07-17</expire_by>
+        </Product>
+    product_example:
+      value:
+        name: milk
+        quantity: 1
+        category: DIARY
+        storage_space: FRIDGE
+        expire_by: 2023-07-17
+    product_list_example:
+      value: 
+        [
+        {
+        "name": "milk",
+        "quantity": 1,
+        "category": "DIARY",
+        "storage_space": "FRIDGE",
+        "expire_by": "2023-07-17"
+        },
+        {
+        "name": "apple",
+        "quantity": 3,
+        "category": "FRUIT",
+        "storage_space": "OTHER",
+        "expire_by": "2023-07-22"
+        }
+        ]
+    product_list_response_example:
+      value:
+        {
+        result_count: 2,
+        products: 
+          [
+          {
+          "name": "milk",
+          "quantity": 1,
+          "category": "DIARY",
+          "storage_space": "FRIDGE",
+          "expire_by": "2023-07-17"
+          },
+          {
+          "name": "apple",
+          "quantity": 3,
+          "category": "FRUIT",
+          "storage_space": "OTHER",
+          "expire_by": "2023-07-22"
+          }
+          ]
+        }
+
+  requestBodies: {}
+  headers: {}
+  securitySchemes: {}
+  links: {}
+  callbacks: {}
