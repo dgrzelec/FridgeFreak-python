@@ -164,12 +164,27 @@ def d_e_l_e_t_e_storage_id(id: int) -> Any:
 @router.put(
     "/storage/{id}",
     response_model=Any,
-    responses={"404": {"model": ProductNotFoundResponse}},
 )
 def p_u_t_storage_id(
-    id: float, body: Product = ...
-) -> Union[Any, ProductNotFoundResponse]:
-    pass
+    id: int, body: Product = ...
+) -> Any:
+    sql = f"UPDATE {config.TABLE_NAME}\
+            SET name = '{body.name}',\
+            quantity = {body.quantity},\
+            category = '{body.category}',\
+            storage_space = '{body.storage_space}',\
+            expire_by = '{body.expire_by}'\
+            WHERE id = {id}"
+    
+    mysql_cursor.execute(sql)
+
+    if mysql_cursor.rowcount == 0:
+        raise HTTPException(status_code=404, detail="Product not found")
+    
+    db.connection.commit()
+        
+    return {"message": f"Updated product with id {id}",
+            "id": id}
 
 
 app.include_router(router)

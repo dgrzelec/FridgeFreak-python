@@ -59,3 +59,8 @@ async def test_product_delete_by_id(async_client: AsyncClient, created_products:
 
     response  = await async_client.delete(f"/api/storage/7")
     assert response.status_code == 404
+
+@pytest.mark.anyio
+async def test_product_deleted_by_id(async_client: AsyncClient, created_products: dict, deleted_product_id: dict):
+    response  = await async_client.get(f"/api/storage/{product_id}")
+    assert response.status_code == 404
