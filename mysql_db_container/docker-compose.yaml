@@ -1,0 +1,16 @@
+services:
+  mysql:
+    image: mysql:latest
+    container_name: mysql-fridgefreak
+    command: ["--mysql-native-password=ON"]
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+    ports:
+      - "3306:3306"
+    volumes:
+      - "./fridgefreak_schema.sql:/docker-entrypoint-initdb.d/1.sql"
+      - "./users.sql:/docker-entrypoint-initdb.d/2.sql"
+      - "mysql-fridgefreak:/var/lib/mysql"
+
+volumes:
+  mysql-fridgefreak:
