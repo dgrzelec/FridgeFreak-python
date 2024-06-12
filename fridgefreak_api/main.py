@@ -168,13 +168,14 @@ def d_e_l_e_t_e_storage_id(id: int) -> Any:
 def p_u_t_storage_id(
     id: int, body: Product = ...
 ) -> Any:
-    sql = f"UPDATE {config.TABLE_NAME}\
-            SET name = '{body.name}',\
-            quantity = {body.quantity},\
-            category = '{body.category}',\
-            storage_space = '{body.storage_space}',\
-            expire_by = '{body.expire_by}'\
-            WHERE id = {id}"
+    set_srt = " SET" 
+    if body.name: set_srt += f" name = '{body.name}'"
+    if body.quantity: set_srt += f" quantity = '{body.quantity}'"
+    if body.category: set_srt += f" category = '{body.category}'"
+    if body.storage_space: set_srt += f" storage_space = '{body.storage_space}'"
+    if body.expire_by: set_srt += f" expire_by = '{body.expire_by}'"
+
+    sql = f"UPDATE {config.TABLE_NAME}" + set_srt + f" WHERE id = {id}"
     
     mysql_cursor.execute(sql)
 
