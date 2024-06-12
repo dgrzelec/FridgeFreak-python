@@ -1,0 +1,21 @@
+include: 
+  - path:
+    - mysql_db_container/docker-compose.yaml
+services:
+  fridgefreak:
+    build: .
+    container_name: fridgefreak_app
+    depends_on:
+      - mysql
+    ports:
+      - "8000:8000"
+    env_file: 
+      - path: ".env"
+        required: true
+      - path: "container_dev.env"
+        required: false
+    develop:
+      watch:
+        - action: sync
+          path: fridgefreak_api/
+          target: /usr/src/fridgefreak_api
