@@ -19,6 +19,8 @@ from fridgefreak_api.models import (
     ProductNotFoundResponse,
 )
 
+from fridgefreak_api.config import config
+
 # this will connect to the db at the app start 
 # and when app stops it will continue executing effectively disconnecting from db
 @asynccontextmanager
@@ -39,6 +41,10 @@ mysql_cursor = db.connection.cursor(dictionary=True)
 
 router = APIRouter(prefix="/api")
 
+###############
+###############
+###############
+
 @router.get("/storage", response_model=StorageGetResponse)
 async def g_e_t_storage(
     name: Optional[str] = None,
@@ -48,15 +54,18 @@ async def g_e_t_storage(
     expire2date: Optional[date] = None,
 ) -> StorageGetResponse:
     where = ""
-    if name: where += f" AND (name = {name})"
-    if storage_space: where += f" AND (storage_space = {storage_space})"
-    if category: where += f" AND (category = {category})"
-    if quantity:where += f" AND (quantity = {quantity})"
+    if name: where += f" AND (name = '{name}')"
+    if storage_space: where += f" AND (storage_space = '{storage_space}')"
+    if category: where += f" AND (category = '{category}')"
+    if quantity:where += f" AND (quantity = '{quantity}')"
 
-    sql = "SELECT * FROM products WHERE 1=1" + where
+    sql = f"SELECT * FROM {config.TABLE_NAME} WHERE 1=1" + where
     
     mysql_cursor.execute(sql)
-    products = await mysql_cursor.fetchall()
+    products = mysql_cursor.fetchall()
+
+    if not products:
+        raise HTTPException(status_code=404, detail="No product was found matching criteria")
 
     return {
                 "result_count": len(products),
@@ -66,7 +75,7 @@ async def g_e_t_storage(
 @router.post("/storage", response_model=None, status_code=201)
 def p_o_s_t_storage(body: List[Product]) -> Any:
 
-    sql = f"INSERT INTO products (name, quantity, category, storage_space, expire_by) VALUES (%s,%s,%s,%s,%s)"
+    sql = f"INSERT INTO {config.TABLE_NAME} (name, quantity, category, storage_space, expire_by) VALUES (%s,%s,%s,%s,%s)"
     values = []
     for p in body:
         values.append((p.name, p.quantity, str(p.category), str(p.storage_space), p.expire_by))
@@ -77,12 +86,44 @@ def p_o_s_t_storage(body: List[Product]) -> Any:
     return {"message": f"Added {mysql_cursor.rowcount} products"}
 
 
-@router.delete("/storage", response_model=Any, responses={"500": {"model": Any}})
+@router.delete("/storage", response_model=Any)
 def d_e_l_e_t_e_storage(
     in_database: bool = Query(..., alias="in-database"),
     body: StorageDeleteRequest = ...,
 ) -> Any:
-    return [body , "in-database: " + str(in_database)]
+    # find queried product
+    where = ""
+    if body.name: where += f" AND (name = '{body.name}')"
+    if body.storage_space: where += f" AND (storage_space = '{body.storage_space}')"
+    if body.category: where += f" AND (category = '{body.category}')"
+    if body.expire_by:where += f" AND (expire_by = '{body.expire_by}')"
+
+    sql = f"SELECT * FROM {config.TABLE_NAME} WHERE 1=1" + where
+    
+    mysql_cursor.execute(sql)
+    product = mysql_cursor.fetchall()
+
+    if len(product) == 0:
+        raise HTTPException(status_code=404, detail="No product was found matching criteria")
+    if len(product) > 1:
+        raise HTTPException(status_code=500, detail="Ambiguous request: Multiple products match criteria")
+
+    prod_id = product[0]["id"]
+    # zero quantity
+    if not in_database:
+        sql = f"UPDATE {config.TABLE_NAME} SET quantity=0 WHERE id={prod_id}"
+        mysql_cursor.execute(sql)
+        db.connection.commit()
+
+        return {"message": f"Quantity of product with id {prod_id} set to zero"}
+    # delete from db
+    else:
+        sql = f"DELETE FROM {config.TABLE_NAME} WHERE id={prod_id}"
+        mysql_cursor.execute(sql)
+        db.connection.commit()
+        
+        return {"message": f"Product with id {prod_id} deleted",
+                "id": prod_id}
 
 
 
@@ -93,18 +134,31 @@ def d_e_l_e_t_e_storage(
 )
 async def g_e_t_storage_id(id: int) -> Union[Product, ProductNotFoundResponse]:
     
-    mysql_cursor.execute(f"SELECT * FROM products WHERE id={id};")
+    mysql_cursor.execute(f"SELECT * FROM {config.TABLE_NAME} WHERE id={id};")
     ret = mysql_cursor.fetchone()
+
+    if not ret:
+        raise HTTPException(status_code=404, detail="Product not found")
+    
     return ret
 
 
 @router.delete(
     "/storage/{id}",
     response_model=Any,
-    responses={"404": {"model": ProductNotFoundResponse}},
 )
-def d_e_l_e_t_e_storage_id(id: float) -> Union[Any, ProductNotFoundResponse]:
-    pass
+def d_e_l_e_t_e_storage_id(id: int) -> Any:
+    
+    sql = f"DELETE FROM {config.TABLE_NAME} WHERE id={id}"
+    mysql_cursor.execute(sql)
+    
+    if mysql_cursor.rowcount == 0:
+        raise HTTPException(status_code=404, detail="Product not found")
+
+    db.connection.commit()
+    # db.connection.rollback()
+
+    return {"message": f"Product with id {id} deleted"}
 
 
 @router.put(

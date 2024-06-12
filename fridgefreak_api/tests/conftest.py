@@ -8,7 +8,7 @@ from httpx import ASGITransport, AsyncClient
 os.environ["ENV_STATE"] = "test"
 
 from fridgefreak_api.main import app
-from fridgefreak_api.main import products_dict
+from fridgefreak_api.database import connection 
 
 
 @pytest.fixture(scope="session")
@@ -23,7 +23,7 @@ def client() -> Generator:
 
 @pytest.fixture(autouse=True)
 async def db() -> AsyncGenerator:
-    products_dict.clear()
+    connection.cursor(dictionary=True).execute(f"TRUNCATE TABLE test_products;")
     yield
 
 
