@@ -8,7 +8,7 @@ from datetime import date
 from enum import Enum
 from typing import List, Optional
 
-from pydantic import BaseModel, RootModel
+from pydantic import BaseModel, ConfigDict, RootModel
 
 
 class Category(Enum):
@@ -27,10 +27,12 @@ class StorageSpace(Enum):
 
 
 class Product(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     name: str = None
     quantity: int = None
-    category: Category = None
-    storage_space: StorageSpace = None
+    category: str = None
+    storage_space: str = None
     expire_by: date = None
 
 

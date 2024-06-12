@@ -7,6 +7,9 @@ from __future__ import annotations
 from datetime import date
 from typing import Any, List, Optional, Union
 
+from contextlib import asynccontextmanager
+import fridgefreak_api.database as db
+
 from fastapi import FastAPI, Query, APIRouter, HTTPException
 
 from fridgefreak_api.models import (
@@ -16,30 +19,23 @@ from fridgefreak_api.models import (
     ProductNotFoundResponse,
 )
 
-### temp data structure
-products_dict = {}
+# this will connect to the db at the app start 
+# and when app stops it will continue executing effectively disconnecting from db
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    db.connection.connect()
+    yield
+    db.connection.close()
 
-async def get_product_by_id(id: int):
-    ret = products_dict.get(id)
-    if not ret: 
-        raise HTTPException(status_code=404, detail="Product not found")
-    return ret
-
-def find_product(**kwargs) -> List[Product]:
-    ret = products_dict.values()
-    for key, value in kwargs.items():
-        if key not in Product.model_fields: 
-            kwargs.pop(key)
-            continue
-        ret = filter(lambda product: getattr(product, key) == value, products_dict.values())
-        ret = list(ret)
-    return list(ret)
-###
 
 app = FastAPI(
     title="FridgeFreak-api",
     version="1.2.0",
+    lifespan=lifespan
 )
+
+mysql_cursor = db.connection.cursor(dictionary=True)
+
 
 router = APIRouter(prefix="/api")
 
@@ -51,12 +47,16 @@ async def g_e_t_storage(
     quantity: Optional[int] = None,
     expire2date: Optional[date] = None,
 ) -> StorageGetResponse:
-    filter_args = {}
-    if name: filter_args["name"] = name
-    if storage_space: filter_args["storage_space"] = storage_space
-    if category: filter_args["category"] = category
-    if quantity: filter_args["quantity"] = quantity
-    products = find_product(**filter_args)
+    where = ""
+    if name: where += f" AND (name = {name})"
+    if storage_space: where += f" AND (storage_space = {storage_space})"
+    if category: where += f" AND (category = {category})"
+    if quantity:where += f" AND (quantity = {quantity})"
+
+    sql = "SELECT * FROM products WHERE 1=1" + where
+    
+    mysql_cursor.execute(sql)
+    products = await mysql_cursor.fetchall()
 
     return {
                 "result_count": len(products),
@@ -65,13 +65,16 @@ async def g_e_t_storage(
 
 @router.post("/storage", response_model=None, status_code=201)
 def p_o_s_t_storage(body: List[Product]) -> Any:
-    id = len(products_dict)
 
-    for product in body:
-        products_dict[id] = product
-        id += 1
+    sql = f"INSERT INTO products (name, quantity, category, storage_space, expire_by) VALUES (%s,%s,%s,%s,%s)"
+    values = []
+    for p in body:
+        values.append((p.name, p.quantity, str(p.category), str(p.storage_space), p.expire_by))
+
+    mysql_cursor.executemany(sql, values)
+    db.connection.commit()
         
-    return {"message": f"Added {len(body)} products"}
+    return {"message": f"Added {mysql_cursor.rowcount} products"}
 
 
 @router.delete("/storage", response_model=Any, responses={"500": {"model": Any}})
@@ -89,7 +92,10 @@ def d_e_l_e_t_e_storage(
     responses={"404": {"model": ProductNotFoundResponse}},
 )
 async def g_e_t_storage_id(id: int) -> Union[Product, ProductNotFoundResponse]:
-    return await get_product_by_id(id)
+    
+    mysql_cursor.execute(f"SELECT * FROM products WHERE id={id};")
+    ret = mysql_cursor.fetchone()
+    return ret
 
 
 @router.delete(

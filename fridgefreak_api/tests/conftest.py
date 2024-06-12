@@ -1,8 +1,12 @@
+import os
 from typing import AsyncGenerator, Generator
 
 import pytest
 from fastapi.testclient import TestClient
 from httpx import ASGITransport, AsyncClient
+
+os.environ["ENV_STATE"] = "test"
+
 from fridgefreak_api.main import app
 from fridgefreak_api.main import products_dict
 
