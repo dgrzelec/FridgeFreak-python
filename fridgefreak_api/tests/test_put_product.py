@@ -1,3 +1,4 @@
+from datetime import date
 from httpx import AsyncClient
 import pytest
 from typing import List
@@ -9,7 +10,7 @@ updated_product = {"name": "tomato",
                     "quantity": 2, 
                     "category": "VEGETABLE", 
                     "storage_space": "FRIDGE",
-                    "expire_by": "2024-01-01"}
+                    "expire_by": str(date(2024,1,1))}
 
 
 async def update_product_id(id: int, async_client: AsyncClient) -> dict:

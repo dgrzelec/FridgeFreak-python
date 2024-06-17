@@ -169,13 +169,13 @@ def p_u_t_storage_id(
     id: int, body: Product = ...
 ) -> Any:
     set_srt = " SET" 
-    if body.name: set_srt += f" name = '{body.name}'"
-    if body.quantity: set_srt += f" quantity = '{body.quantity}'"
-    if body.category: set_srt += f" category = '{body.category}'"
-    if body.storage_space: set_srt += f" storage_space = '{body.storage_space}'"
-    if body.expire_by: set_srt += f" expire_by = '{body.expire_by}'"
+    if body.name: set_srt += f" name = '{body.name}',"
+    if body.quantity: set_srt += f" quantity = '{body.quantity}',"
+    if body.category: set_srt += f" category = '{body.category}',"
+    if body.storage_space: set_srt += f" storage_space = '{body.storage_space}',"
+    if body.expire_by: set_srt += f" expire_by = '{body.expire_by}',"
 
-    sql = f"UPDATE {config.TABLE_NAME}" + set_srt + f" WHERE id = {id}"
+    sql = f"UPDATE {config.TABLE_NAME}" + set_srt[:-1] + f" WHERE id = {id}" # trim last comma
     
     mysql_cursor.execute(sql)
 

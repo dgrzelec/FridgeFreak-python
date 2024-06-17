@@ -2,6 +2,7 @@
 # import sqlalchemy
 from fridgefreak_api.config import config
 from mysql.connector import connect, MySQLConnection
+from mysql.connector import errors as mysql_errors
 
 
 
@@ -33,14 +34,17 @@ def get_mysql_connector():
         database=config.DATABASE_NAME
         )
 
+def get_connection2db():
+    return  MySQLConnection(
+            host=config.DATABASE_HOST,
+            user=config.DATABASE_USER,
+            password=config.DATABASE_PASSWORD,
+            database=config.DATABASE_NAME
+            )
+
 ####
 
-connection = MySQLConnection(
-        host=config.DATABASE_HOST,
-        user=config.DATABASE_USER,
-        password=config.DATABASE_PASSWORD,
-        database=config.DATABASE_NAME
-        )
+connection =  get_connection2db()
 
 
 if __name__ == "__main__":
