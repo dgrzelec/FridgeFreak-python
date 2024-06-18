@@ -1,5 +1,7 @@
 FROM python:3.11.9
 
+LABEL org.opencontainers.image.source=https://github.com/dgrzelec/FridgeFreak-python
+
 WORKDIR /usr/src/
 
 ADD https://github.com/ufoscout/docker-compose-wait/releases/download/2.11.0/wait wait
