@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: fridgefreak
+    type: database
+  name: mysql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fridgefreak
+      type: database
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: fridgefreak
+        type: database
+    spec:
+      containers:
+        - args:
+            - --mysql-native-password=ON
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  key: MYSQL_ROOT_PASSWORD
+                  name: secrets_1
+          image: mysql:latest
+          name: mysql-fridgefreak
+          ports:
+            - containerPort: 3306
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /docker-entrypoint-initdb.d/1.sql
+              name: mysql-setup
+              subPath: 1.sql
+            - mountPath: /docker-entrypoint-initdb.d/2.sql
+              name: mysql-setup
+              subPath: 2.sql
+            - mountPath: /var/lib/mysql
+              name: mysql-fridgefreak
+      hostname: mysql
+      restartPolicy: Always
+      volumes:
+        - configMap:
+            items:
+              - key: fridgefreak_schema.sql
+                path: 1.sql
+              - key: users.sql
+                path: 2.sql
+            name: mysql-setup
+          name: mysql-setup
+        - name: mysql-fridgefreak
+          persistentVolumeClaim:
+            claimName: mysql-fridgefreak

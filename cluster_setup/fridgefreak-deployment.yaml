@@ -1,0 +1,120 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: fridgefreak
+    type: backend
+  name: fridgefreak
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fridgefreak
+      type: backend
+  template:
+    metadata:
+      labels:
+        app: fridgefreak
+        type: backend
+    spec:
+      containers:
+        - env:
+            - name: DEV_CLEVER_CLOUD_DB
+              valueFrom:
+                configMapKeyRef:
+                  key: DEV_CLEVER_CLOUD_DB
+                  name: configmap_1
+            - name: DEV_CLEVER_CLOUD_HOST
+              valueFrom:
+                configMapKeyRef:
+                  key: DEV_CLEVER_CLOUD_HOST
+                  name: configmap_1
+            - name: DEV_CLEVER_CLOUD_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  key: DEV_CLEVER_CLOUD_PASSWORD
+                  name: secrets_1
+            - name: DEV_CLEVER_CLOUD_PORT
+              valueFrom:
+                configMapKeyRef:
+                  key: DEV_CLEVER_CLOUD_PORT
+                  name: configmap_1
+            - name: DEV_CLEVER_CLOUD_USER
+              valueFrom:
+                configMapKeyRef:
+                  key: DEV_CLEVER_CLOUD_USER
+                  name: configmap_1
+            - name: DEV_DATABASE_HOST
+              valueFrom:
+                configMapKeyRef:
+                  key: DEV_DATABASE_HOST
+                  name: configmap_1
+            - name: DEV_DATABASE_NAME
+              valueFrom:
+                configMapKeyRef:
+                  key: DEV_DATABASE_NAME
+                  name: configmap_1
+            - name: DEV_DATABASE_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  key: DEV_DATABASE_PASSWORD
+                  name: secrets_1
+            - name: DEV_DATABASE_PORT
+              valueFrom:
+                configMapKeyRef:
+                  key: DEV_DATABASE_PORT
+                  name: configmap_1
+            - name: DEV_DATABASE_USER
+              valueFrom:
+                configMapKeyRef:
+                  key: DEV_DATABASE_USER
+                  name: configmap_1
+            - name: DEV_TABLE_NAME
+              valueFrom:
+                configMapKeyRef:
+                  key: DEV_TABLE_NAME
+                  name: configmap_1
+            - name: ENV_STATE
+              valueFrom:
+                configMapKeyRef:
+                  key: ENV_STATE
+                  name: configmap_1
+            - name: TEST_DATABASE_HOST
+              valueFrom:
+                configMapKeyRef:
+                  key: TEST_DATABASE_HOST
+                  name: configmap_1
+            - name: TEST_DATABASE_NAME
+              valueFrom:
+                configMapKeyRef:
+                  key: TEST_DATABASE_NAME
+                  name: configmap_1
+            - name: TEST_DATABASE_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  key: TEST_DATABASE_PASSWORD
+                  name: secrets_1
+            - name: TEST_DATABASE_PORT
+              valueFrom:
+                configMapKeyRef:
+                  key: TEST_DATABASE_PORT
+                  name: configmap_1
+            - name: TEST_DATABASE_USER
+              valueFrom:
+                configMapKeyRef:
+                  key: TEST_DATABASE_USER
+                  name: configmap_1
+            - name: TEST_TABLE_NAME
+              valueFrom:
+                configMapKeyRef:
+                  key: TEST_TABLE_NAME
+                  name: configmap_1
+            - name: WAIT_HOSTS
+              value: mysql:3306
+            - name: WAIT_HOST_CONNECT_TIMEOUT
+              value: "1"
+          image: ghcr.io/dgrzelec/fridgefreak-app:0.1
+          name: fridgefreak-app
+          ports:
+            - containerPort: 8000
+              protocol: TCP

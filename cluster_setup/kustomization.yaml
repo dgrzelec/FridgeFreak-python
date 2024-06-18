@@ -1,0 +1,45 @@
+namespace: fridgefreak
+commonLabels:
+  stage: dev
+resources:
+  - fridgefreak-deployment.yaml
+  - fridgefreak-service.yaml
+  - mysql-deployment.yaml
+  - mysql-service.yaml
+  - mysql-fridgefreak-persistentvolumeclaim.yaml
+  - mysql-setup-configmap.yaml
+
+configMapGenerator:
+  - name: configmap_1
+    envs:
+      - config.env
+secretGenerator:
+  - name: secrets_1
+    envs:
+      - secret.env
+generatorOptions:
+  disableNameSuffixHash: true
+
+vars:
+  - name: DEV_DATABASE_PASSWORD
+    objref:
+      name: secrets_1
+      apiVersion: v1
+      kind: Secret
+    fieldref:
+      fieldpath: data.DEV_DATABASE_PASSWORD
+  - name: TEST_DATABASE_PASSWORD
+    objref:
+      name: secrets_1
+      apiVersion: v1
+      kind: Secret
+    fieldref:
+      fieldpath: data.TEST_DATABASE_PASSWORD
+  - name: MYSQL_ROOT_PASSWORD
+    objref:
+      name: secrets_1
+      apiVersion: v1
+      kind: Secret
+    fieldref:
+      fieldpath: data.MYSQL_ROOT_PASSWORD
+        
