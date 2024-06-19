@@ -25,34 +25,53 @@ spec:
           env:
             - name: MYSQL_ROOT_PASSWORD
               valueFrom:
-                configMapKeyRef:
+                secretKeyRef:
                   key: MYSQL_ROOT_PASSWORD
-                  name: secrets_1
+                  name: secrets-backend
+            - name: DEV_DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: DEV_DATABASE_PASSWORD
+                  name: secrets-backend
+            - name: TEST_DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: TEST_DATABASE_PASSWORD
+                  name: secrets-backend
           image: mysql:latest
           name: mysql-fridgefreak
           ports:
             - containerPort: 3306
               protocol: TCP
           volumeMounts:
-            - mountPath: /docker-entrypoint-initdb.d/1.sql
+            - mountPath: /docker-entrypoint-initdb.d/1.sh
               name: mysql-setup
-              subPath: 1.sql
-            - mountPath: /docker-entrypoint-initdb.d/2.sql
+              subPath: 1.sh
+            - mountPath: /docker-entrypoint-initdb.d/2.sh
               name: mysql-setup
-              subPath: 2.sql
+              subPath: 2.sh
             - mountPath: /var/lib/mysql
               name: mysql-fridgefreak
+          # resources:
+          #   requests:
+          #     memory: "64Mi"
+          #     cpu: "250m"
+          #   limits:
+          #     memory: "128Mi"
+          #     cpu: "500m"
       hostname: mysql
-      restartPolicy: Always
       volumes:
         - configMap:
             items:
-              - key: fridgefreak_schema.sql
-                path: 1.sql
-              - key: users.sql
-                path: 2.sql
+              - key: fridgefreak_schema.sh
+                path: 1.sh
+              - key: users.sh
+                path: 2.sh
             name: mysql-setup
           name: mysql-setup
         - name: mysql-fridgefreak
           persistentVolumeClaim:
             claimName: mysql-fridgefreak
+        - name: secrets-backend # needed for kustomization secret generator
+          secret:
+            secretName: secrets-backend
