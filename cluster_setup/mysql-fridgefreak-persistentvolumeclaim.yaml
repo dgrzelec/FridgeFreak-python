@@ -4,16 +4,15 @@ metadata:
   labels:
     app: fridgefreak
     type: volume
-  name: mysql-fridgefreak
+  name: mysql-pvc
 spec:
-  storageClassName: manual
-  volumeName: mysql-pv
+  # storageClassName: manual
+  # volumeName: mysql-pv
   accessModes:
     - ReadWriteOnce
   selector:
     matchLabels:
       app: fridgefreak
-      type: volume
   resources:
     requests:
-      storage: 100Mi
+      storage: 2Gi

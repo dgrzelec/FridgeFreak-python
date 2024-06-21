@@ -120,18 +120,16 @@ spec:
           name: fridgefreak-app
           resources:
             requests:
-              memory: "64Mi"
-              cpu: "250m"
-            limits:
               memory: "128Mi"
               cpu: "500m"
+            limits:
+              memory: "512Mi"
+              cpu: "1000m"
           volumeMounts:
           - name: config-backend
             mountPath: /config
           - name: secrets-backend
             mountPath: /secrets
-          # - name: regcred
-          #   mountPath: /secrets/regcred
           ports:
             - containerPort: 8000
               protocol: TCP
@@ -142,6 +140,3 @@ spec:
       - name: secrets-backend # needed for kustomization secret generator
         secret:
           secretName: secrets-backend
-      # - name: regcred # needed for kustomization secret generator
-      #   secret:
-      #     secretName: regcred

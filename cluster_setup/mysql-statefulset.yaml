@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app: fridgefreak
+    type: database
+  name: mysql-ss
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fridgefreak
+      type: database
+  serviceName: mysql-svc
+  template:
+    metadata:
+      labels:
+        app: fridgefreak
+        type: database
+    spec:
+      containers:
+        - args:
+            - --mysql-native-password=ON
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: MYSQL_ROOT_PASSWORD
+                  name: secrets-backend
+            - name: DEV_DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: DEV_DATABASE_PASSWORD
+                  name: secrets-backend
+            - name: TEST_DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: TEST_DATABASE_PASSWORD
+                  name: secrets-backend
+          image: mysql:latest
+          name: mysql-db-pod
+          ports:
+            - containerPort: 3306
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /docker-entrypoint-initdb.d/1.sh
+              name: mysql-setup
+              subPath: 1.sh
+            - mountPath: /docker-entrypoint-initdb.d/2.sh
+              name: mysql-setup
+              subPath: 2.sh
+            - mountPath: /var/lib/mysql
+              name: mysql-vc
+          # resources:
+          #   requests:
+          #     memory: "64Mi"
+          #     cpu: "250m"
+          #   limits:
+          #     memory: "128Mi"
+          #     cpu: "500m"
+      hostname: mysql
+      volumes:
+        - configMap:
+            items:
+              - key: fridgefreak_schema.sh
+                path: 1.sh
+              - key: users.sh
+                path: 2.sh
+            name: mysql-setup
+          name: mysql-setup
+        - name: secrets-backend # needed for kustomization secret generator
+          secret:
+            secretName: secrets-backend
+  volumeClaimTemplates:
+    - metadata:
+       name: mysql-vc
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 2Gi
+        storageClassName: local-storage

@@ -1,13 +1,13 @@
 namespace: fridgefreak
 commonLabels:
   stage: dev
-resources:
-  - mysql-setup-configmap.yaml
-  - fridgefreak-service.yaml
-  - mysql-service.yaml
-  - mysql-fridgefreak-persistentvolumeclaim.yaml
-  - mysql-deployment.yaml
-  - fridgefreak-deployment.yaml
+# resources:
+  # - mysql-setup-configmap.yaml
+  # - fridgefreak-service.yaml
+  # - mysql-service.yaml
+  # - mysql-fridgefreak-persistentvolumeclaim.yaml
+  # - mysql-deployment.yaml
+  # - fridgefreak-deployment.yaml
 
 configMapGenerator:
   - name: config-backend
