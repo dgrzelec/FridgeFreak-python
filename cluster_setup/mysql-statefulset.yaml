@@ -18,10 +18,10 @@ spec:
         app: fridgefreak
         type: database
     spec:
+      imagePullSecrets:
+        - name: 18129941-dgrzelec-redhat-vm-pull-secret
       containers:
-        - args:
-            - --mysql-native-password=ON
-          env:
+        - env:
             - name: MYSQL_ROOT_PASSWORD
               valueFrom:
                 secretKeyRef:
@@ -37,16 +37,16 @@ spec:
                 secretKeyRef:
                   key: TEST_DATABASE_PASSWORD
                   name: secrets-backend
-          image: mysql:latest
+          image: registry.redhat.io/rhel8/mysql-80:latest
           name: mysql-db-pod
           ports:
             - containerPort: 3306
               protocol: TCP
           volumeMounts:
-            - mountPath: /docker-entrypoint-initdb.d/1.sh
+            - mountPath: /opt/app-root/src/mysql-init/1.sh
               name: mysql-setup
               subPath: 1.sh
-            - mountPath: /docker-entrypoint-initdb.d/2.sh
+            - mountPath: /opt/app-root/src/mysql-init/2.sh
               name: mysql-setup
               subPath: 2.sh
             - mountPath: /var/lib/mysql
@@ -80,4 +80,4 @@ spec:
         resources:
           requests:
             storage: 2Gi
-        storageClassName: local-storage
+        storageClassName: lvms-vg1

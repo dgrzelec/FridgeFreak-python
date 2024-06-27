@@ -1,8 +1,8 @@
 apiVersion: v1
 data:
   fridgefreak_schema.sh: >
-    mysql -e
-    "create database fridgefreak;
+    mysql ${mysql_flags} -e
+    "create database if not exists fridgefreak;
     use fridgefreak;
 
     CREATE TABLE IF NOT EXISTS products (
@@ -20,10 +20,10 @@ data:
     TRUNCATE test_products;"
   
   users.sh: >
-    mysql -e
-    "CREATE USER 'testuser' IDENTIFIED WITH mysql_native_password BY '${TEST_DATABASE_PASSWORD}';
+    mysql ${mysql_flags} -e
+    "CREATE USER IF NOT EXISTS 'testuser' IDENTIFIED WITH mysql_native_password BY '${TEST_DATABASE_PASSWORD}';
     GRANT ALL privileges on fridgefreak.test_products TO 'testuser';
-    CREATE USER 'fridgefreak_api' IDENTIFIED WITH mysql_native_password BY '${DEV_DATABASE_PASSWORD}';
+    CREATE USER IF NOT EXISTS 'fridgefreak_api' IDENTIFIED WITH mysql_native_password BY '${DEV_DATABASE_PASSWORD}';
     GRANT ALL privileges on fridgefreak.products TO 'fridgefreak_api';"
 kind: ConfigMap
 metadata:

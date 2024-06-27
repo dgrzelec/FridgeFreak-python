@@ -6,7 +6,6 @@ metadata:
     type: backend
   name: fridgefreak
 spec:
-  type: NodePort
   ports:
     - name: "8000"
       port: 8000

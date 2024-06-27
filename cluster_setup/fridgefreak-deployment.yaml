@@ -19,6 +19,17 @@ spec:
     spec:
       imagePullSecrets: 
         - name: regcred
+        - name: 18129941-dgrzelec-redhat-vm-pull-secret
+      initContainers:
+        - image: registry.redhat.io/rhel8/mysql-80:latest
+          name: mysql-db-connection-tester
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: MYSQL_ROOT_PASSWORD
+                  name: secrets-backend
+          command: ["sh", "-c", "until mysql -u root --password=$MYSQL_ROOT_PASSWORD -h mysql-svc -e 'SHOW TABLES FROM fridgefreak;'; do echo 'Waiting for MySQL database...'; sleep 2; done; echo 'Database ready!'"]
       containers:
         - env:
             - name: DEV_CLEVER_CLOUD_DB

@@ -1,13 +1,12 @@
-namespace: fridgefreak
+namespace: test-fridgefreak
 commonLabels:
   stage: dev
-# resources:
-  # - mysql-setup-configmap.yaml
-  # - fridgefreak-service.yaml
-  # - mysql-service.yaml
-  # - mysql-fridgefreak-persistentvolumeclaim.yaml
-  # - mysql-deployment.yaml
-  # - fridgefreak-deployment.yaml
+resources:
+   - mysql-setup-configmap.yaml
+   - fridgefreak-service.yaml
+   - mysql-service.yaml
+   - mysql-statefulset.yaml
+   - fridgefreak-deployment.yaml
 
 configMapGenerator:
   - name: config-backend
@@ -17,9 +16,6 @@ secretGenerator:
   - name: secrets-backend
     envs:
       - secret.env
-  # - name: regcred
-  #   envs:
-  #     - regcred.env
 generatorOptions:
   disableNameSuffixHash: true
         
