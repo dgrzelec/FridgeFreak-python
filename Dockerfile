@@ -1,4 +1,4 @@
-FROM python:3.11.9
+FROM python:3.11.9-alpine
 
 LABEL org.opencontainers.image.source=https://github.com/dgrzelec/FridgeFreak-python
 
