@@ -1,0 +1,97 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: db-sync
+spec:  
+  activeDeadlineSeconds: 1800 
+  backoffLimit: 2  
+  template:         
+    metadata:
+      name: db-sync
+    spec:
+      imagePullSecrets: 
+        - name: 18129941-dgrzelec-redhat-vm-pull-secret
+      containers:
+      - name: db-sync
+        image: registry.redhat.io/rhel8/mysql-80:latest
+        command: 
+          - sh  
+          - "-c"
+          - >
+            mysqldump --no-create-info --no-tablespaces --compact --set-gtid-purged=OFF --single-transaction --skip-extended-insert 
+            -u $DEV_CLEVER_CLOUD_USER -p$DEV_CLEVER_CLOUD_PASSWORD -h $DEV_CLEVER_CLOUD_HOST
+            $DEV_CLEVER_CLOUD_DB $DEV_CLEVER_CLOUD_TABLE > fridgefreak-table.sql;
+            echo "FILE CONTENT:";
+            cat fridgefreak-table.sql;
+            echo "INSERTING DATA:";
+            mysql -u root -p$MYSQL_ROOT_PASSWORD -h $DEV_DATABASE_HOST --force
+            $DEV_DATABASE_NAME < fridgefreak-table.sql;
+            echo "DONE!";
+
+        env:
+          - name: MYSQL_ROOT_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: MYSQL_ROOT_PASSWORD 
+                name: secrets-backend
+          - name: DEV_CLEVER_CLOUD_DB
+            valueFrom:
+              configMapKeyRef:
+                key: DEV_CLEVER_CLOUD_DB
+                name: config-backend
+          - name: DEV_CLEVER_CLOUD_HOST
+            valueFrom:
+              configMapKeyRef:
+                key: DEV_CLEVER_CLOUD_HOST
+                name: config-backend
+          - name: DEV_CLEVER_CLOUD_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: DEV_CLEVER_CLOUD_PASSWORD
+                name: secrets-backend
+          - name: DEV_CLEVER_CLOUD_PORT
+            valueFrom:
+              configMapKeyRef:
+                key: DEV_CLEVER_CLOUD_PORT
+                name: config-backend
+          - name: DEV_CLEVER_CLOUD_USER
+            valueFrom:
+              configMapKeyRef:
+                key: DEV_CLEVER_CLOUD_USER
+                name: config-backend
+          - name: DEV_CLEVER_CLOUD_TABLE
+            valueFrom:
+              configMapKeyRef:
+                key: DEV_CLEVER_CLOUD_TABLE
+                name: config-backend
+          - name: DEV_DATABASE_HOST
+            valueFrom:
+              configMapKeyRef:
+                key: DEV_DATABASE_HOST
+                name: config-backend
+          - name: DEV_DATABASE_NAME
+            valueFrom:
+              configMapKeyRef:
+                key: DEV_DATABASE_NAME
+                name: config-backend
+          - name: DEV_DATABASE_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: DEV_DATABASE_PASSWORD
+                name: secrets-backend
+          - name: DEV_DATABASE_PORT
+            valueFrom:
+              configMapKeyRef:
+                key: DEV_DATABASE_PORT
+                name: config-backend
+          - name: DEV_DATABASE_USER
+            valueFrom:
+              configMapKeyRef:
+                key: DEV_DATABASE_USER
+                name: config-backend
+          - name: DEV_TABLE_NAME
+            valueFrom:
+              configMapKeyRef:
+                key: DEV_TABLE_NAME
+                name: config-backend
+      restartPolicy: OnFailure    
