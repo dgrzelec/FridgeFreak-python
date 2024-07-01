@@ -94,4 +94,4 @@ spec:
               configMapKeyRef:
                 key: DEV_TABLE_NAME
                 name: config-backend
-      restartPolicy: OnFailure    
+      restartPolicy: OnFailure
