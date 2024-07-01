@@ -13,4 +13,5 @@ COPY fridgefreak_api/*.py fridgefreak_api/
 COPY fridgefreak_api/tests fridgefreak_api/tests
 
 ENV PORT=${PORT}
-CMD ["sh", "-c", "fastapi run fridgefreak_api/main.py --port ${PORT}"]
+ENTRYPOINT [ "sh", "-c" ]
+CMD ["fastapi run fridgefreak_api/main.py --port ${PORT}"]
