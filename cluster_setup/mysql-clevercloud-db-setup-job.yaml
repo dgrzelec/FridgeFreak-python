@@ -1,0 +1,84 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: db-sync
+spec:  
+  activeDeadlineSeconds: 1800 
+  backoffLimit: 2  
+  template:         
+    metadata:
+      name: db-sync
+    spec:
+      containers:
+      - name: db-sync
+        image: registry.redhat.io/rhel8/mysql-80:latest
+        command: 
+          - sh  
+          - "-c"
+          - |
+            mysqldump -u $DEV_CLEVER_CLOUD_USER --password $DEV_CLEVER_CLOUD_PASSWORD -h $DEV_CLEVER_CLOUD_HOST
+            $DEV_CLEVER_CLOUD_DB fridgefreak > data/fridgefreak-table.sql;
+            cat data/fridgefreak-table.sql;
+        volumeMounts:
+          - name: local-data
+            mountPath: /data
+        env:
+          - name: DEV_CLEVER_CLOUD_DB
+            valueFrom:
+              configMapKeyRef:
+                key: DEV_CLEVER_CLOUD_DB
+                name: config-backend
+          - name: DEV_CLEVER_CLOUD_HOST
+            valueFrom:
+              configMapKeyRef:
+                key: DEV_CLEVER_CLOUD_HOST
+                name: config-backend
+          - name: DEV_CLEVER_CLOUD_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: DEV_CLEVER_CLOUD_PASSWORD
+                name: secrets-backend
+          - name: DEV_CLEVER_CLOUD_PORT
+            valueFrom:
+              configMapKeyRef:
+                key: DEV_CLEVER_CLOUD_PORT
+                name: config-backend
+          - name: DEV_CLEVER_CLOUD_USER
+            valueFrom:
+              configMapKeyRef:
+                key: DEV_CLEVER_CLOUD_USER
+                name: config-backend
+          - name: DEV_DATABASE_HOST
+            valueFrom:
+              configMapKeyRef:
+                key: DEV_DATABASE_HOST
+                name: config-backend
+          - name: DEV_DATABASE_NAME
+            valueFrom:
+              configMapKeyRef:
+                key: DEV_DATABASE_NAME
+                name: config-backend
+          - name: DEV_DATABASE_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: DEV_DATABASE_PASSWORD
+                name: secrets-backend
+          - name: DEV_DATABASE_PORT
+            valueFrom:
+              configMapKeyRef:
+                key: DEV_DATABASE_PORT
+                name: config-backend
+          - name: DEV_DATABASE_USER
+            valueFrom:
+              configMapKeyRef:
+                key: DEV_DATABASE_USER
+                name: config-backend
+          - name: DEV_TABLE_NAME
+            valueFrom:
+              configMapKeyRef:
+                key: DEV_TABLE_NAME
+                name: config-backend
+      restartPolicy: OnFailure    
+      volumes:
+        - name: local-data
+          emptyDir: /data
