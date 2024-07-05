@@ -7,6 +7,9 @@ from __future__ import annotations
 from datetime import date
 from typing import Any, List, Optional, Union
 
+import logging
+from fridgefreak_api.log_filters import EndpointFilter
+
 from contextlib import asynccontextmanager
 import fridgefreak_api.database as db
 
@@ -40,6 +43,10 @@ mysql_cursor = db.connection.cursor(dictionary=True)
 
 
 router = APIRouter(prefix="/api")
+
+# log filtering setup
+excluded_endpoints = ["/api/health"]
+logging.getLogger("uvicorn.access").addFilter(EndpointFilter(excluded_endpoints))
 
 ###############
 ###############
