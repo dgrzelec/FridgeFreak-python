@@ -1,4 +1,4 @@
-namespace: test-fridgefreak
+namespace: fridgefreak
 commonLabels:
   stage: dev
 resources:

@@ -156,9 +156,28 @@ spec:
                 configMapKeyRef:
                   key: TEST_TABLE_NAME
                   name: config-backend
-          image: ghcr.io/dgrzelec/fridgefreak-app:0.1-alpine
+          image: ghcr.io/dgrzelec/fridgefreak-app:0.2-alpine
           imagePullPolicy: Always
           name: fridgefreak-app
+          startupProbe:
+            httpGet:
+              path: "/api/health"
+              port: 8000
+            successThreashold: 1
+            failureThreshold: 10
+            periodSeconds: 2
+          readinessProbe:
+            httpGet:
+              path: "/api/health"
+              port: 8000
+            failureThreshold: 1
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: "/api/health"
+              port: 8000
+            failureThreshold: 2
+            periodSeconds: 10
           resources:
             requests:
               memory: "128Mi"
