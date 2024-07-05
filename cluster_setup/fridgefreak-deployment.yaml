@@ -156,10 +156,6 @@ spec:
                 configMapKeyRef:
                   key: TEST_TABLE_NAME
                   name: config-backend
-            - name: WAIT_HOSTS
-              value: mysql-svc:3306
-            - name: WAIT_HOST_CONNECT_TIMEOUT
-              value: "1"
           image: ghcr.io/dgrzelec/fridgefreak-app:0.1-alpine
           imagePullPolicy: Always
           name: fridgefreak-app

@@ -187,5 +187,13 @@ def p_u_t_storage_id(
     return {"message": f"Updated product with id {id}",
             "id": id}
 
+#### Health check
+@router.get(
+    "/health",
+    response_model=str)
+async def health_check():
+    if not db.connection.is_connected():
+        raise HTTPException(status_code=500, detail="No connection to database!")
+    return 'Ok'
 
 app.include_router(router)
