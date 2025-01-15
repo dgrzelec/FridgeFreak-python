@@ -1,0 +1,33 @@
+# Default values for fridgefreak_chart.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+globals:
+  labels:
+    app: fridgefreak
+
+
+mysql:
+  name: mysql-ss
+  labels:
+    type: database
+
+  image:
+    repository: registry.redhat.io/rhel8/mysql-80
+    tag: "latest"
+
+fridgefreak:
+  name: fridgefreak
+  labels:
+    type: backend
+
+  image:
+    repository: ghcr.io/dgrzelec/fridgefreak-app
+    tag: "0.2-alpine"
+
+imagePullSecrets: 
+  - mysql: 18129941-dgrzelec-redhat-vm-pull-secret
+  - fridgefreak: regcred
+
+
+
