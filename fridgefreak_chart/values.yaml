@@ -6,6 +6,8 @@ globals:
   labels:
     app: fridgefreak
 
+postInstall:
+  databaseSync: false
 
 mysql:
   name: mysql-ss
@@ -18,16 +20,22 @@ mysql:
 
 fridgefreak:
   name: fridgefreak
+  port: 8000
   labels:
     type: backend
 
   image:
     repository: ghcr.io/dgrzelec/fridgefreak-app
     tag: "0.2-alpine"
+    pullPolicy: "Always"
 
 imagePullSecrets: 
   - mysql: 18129941-dgrzelec-redhat-vm-pull-secret
   - fridgefreak: regcred
 
 
+configMaps:
+  backend: "config-backend"
 
+secrets:
+  backend: "secret-backend"
