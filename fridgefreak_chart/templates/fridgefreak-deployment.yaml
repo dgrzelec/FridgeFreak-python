@@ -1,0 +1,203 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: {{ .Values.globals.labels.app}}
+    type: {{ .Values.fridgefreak.labels.type}}
+  name: {{ .Values.fridgefreak.name}}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.globals.labels.app}}
+      type: {{ .Values.fridgefreak.labels.type}}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.globals.labels.app}}
+        type: {{ .Values.fridgefreak.labels.type}}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      initContainers:
+        - image: "{{ .Values.mysql.image.repository }}:{{ .Values.mysql.image.tag}}"
+          name: mysql-db-connection-tester
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: MYSQL_ROOT_PASSWORD
+                  name: {{ .Values.secrets.backend}}
+          command: ["sh", "-c", "until mysql -u root --password=$MYSQL_ROOT_PASSWORD -h mysql-svc -e 'SHOW TABLES FROM fridgefreak;'; do echo 'Waiting for MySQL database...'; sleep 2; done; echo 'Database ready!'"]
+        - image: "{{ .Values.fridgefreak.image.repository }}:{{ .Values.fridgefreak.image.tag}}"
+          name: tests-fridgefreak
+          env:
+            - name: TEST_DATABASE_HOST
+              valueFrom:
+                configMapKeyRef:
+                  key: TEST_DATABASE_HOST
+                  name: {{ .Values.configMaps.backend}}
+            - name: TEST_DATABASE_NAME
+              valueFrom:
+                configMapKeyRef:
+                  key: TEST_DATABASE_NAME
+                  name: {{ .Values.configMaps.backend}}
+            - name: TEST_DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: TEST_DATABASE_PASSWORD
+                  name: {{ .Values.secrets.backend}}
+            - name: TEST_DATABASE_PORT
+              valueFrom:
+                configMapKeyRef:
+                  key: TEST_DATABASE_PORT
+                  name: {{ .Values.configMaps.backend}}
+            - name: TEST_DATABASE_USER
+              valueFrom:
+                configMapKeyRef:
+                  key: TEST_DATABASE_USER
+                  name: {{ .Values.configMaps.backend}}
+            - name: TEST_TABLE_NAME
+              valueFrom:
+                configMapKeyRef:
+                  key: TEST_TABLE_NAME
+                  name: {{ .Values.configMaps.backend}}
+          command: ["sh", "-c", "pytest"]
+      containers:
+        - env:
+            - name: DEV_CLEVER_CLOUD_DB
+              valueFrom:
+                configMapKeyRef:
+                  key: DEV_CLEVER_CLOUD_DB
+                  name: {{ .Values.configMaps.backend}}
+            - name: DEV_CLEVER_CLOUD_HOST
+              valueFrom:
+                configMapKeyRef:
+                  key: DEV_CLEVER_CLOUD_HOST
+                  name: {{ .Values.configMaps.backend}}
+            - name: DEV_CLEVER_CLOUD_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: DEV_CLEVER_CLOUD_PASSWORD
+                  name: {{ .Values.secrets.backend}}
+            - name: DEV_CLEVER_CLOUD_PORT
+              valueFrom:
+                configMapKeyRef:
+                  key: DEV_CLEVER_CLOUD_PORT
+                  name: {{ .Values.configMaps.backend}}
+            - name: DEV_CLEVER_CLOUD_USER
+              valueFrom:
+                configMapKeyRef:
+                  key: DEV_CLEVER_CLOUD_USER
+                  name: {{ .Values.configMaps.backend}}
+            - name: DEV_DATABASE_HOST
+              valueFrom:
+                configMapKeyRef:
+                  key: DEV_DATABASE_HOST
+                  name: {{ .Values.configMaps.backend}}
+            - name: DEV_DATABASE_NAME
+              valueFrom:
+                configMapKeyRef:
+                  key: DEV_DATABASE_NAME
+                  name: {{ .Values.configMaps.backend}}
+            - name: DEV_DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: DEV_DATABASE_PASSWORD
+                  name: {{ .Values.secrets.backend}}
+            - name: DEV_DATABASE_PORT
+              valueFrom:
+                configMapKeyRef:
+                  key: DEV_DATABASE_PORT
+                  name: {{ .Values.configMaps.backend}}
+            - name: DEV_DATABASE_USER
+              valueFrom:
+                configMapKeyRef:
+                  key: DEV_DATABASE_USER
+                  name: {{ .Values.configMaps.backend}}
+            - name: DEV_TABLE_NAME
+              valueFrom:
+                configMapKeyRef:
+                  key: DEV_TABLE_NAME
+                  name: {{ .Values.configMaps.backend}}
+            - name: ENV_STATE
+              valueFrom:
+                configMapKeyRef:
+                  key: ENV_STATE
+                  name: {{ .Values.configMaps.backend}}
+            - name: TEST_DATABASE_HOST
+              valueFrom:
+                configMapKeyRef:
+                  key: TEST_DATABASE_HOST
+                  name: {{ .Values.configMaps.backend}}
+            - name: TEST_DATABASE_NAME
+              valueFrom:
+                configMapKeyRef:
+                  key: TEST_DATABASE_NAME
+                  name: {{ .Values.configMaps.backend}}
+            - name: TEST_DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: TEST_DATABASE_PASSWORD
+                  name: {{ .Values.secrets.backend}}
+            - name: TEST_DATABASE_PORT
+              valueFrom:
+                configMapKeyRef:
+                  key: TEST_DATABASE_PORT
+                  name: {{ .Values.configMaps.backend}}
+            - name: TEST_DATABASE_USER
+              valueFrom:
+                configMapKeyRef:
+                  key: TEST_DATABASE_USER
+                  name: {{ .Values.configMaps.backend}}
+            - name: TEST_TABLE_NAME
+              valueFrom:
+                configMapKeyRef:
+                  key: TEST_TABLE_NAME
+                  name: {{ .Values.configMaps.backend}}
+          image: "{{ .Values.fridgefreak.image.repository }}:{{ .Values.fridgefreak.image.tag}}"
+          imagePullPolicy: {{ .Values.fridgefreak.image.pullPolicy}}
+          name: fridgefreak-app
+          startupProbe:
+            httpGet:
+              path: "/api/health"
+              port: {{ .Values.fridgefreak.port}}
+            successThreashold: 1
+            failureThreshold: 10
+            periodSeconds: 2
+          readinessProbe:
+            httpGet:
+              path: "/api/health"
+              port: {{ .Values.fridgefreak.port}}
+            failureThreshold: 1
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: "/api/health"
+              port: {{ .Values.fridgefreak.port}}
+            failureThreshold: 2
+            periodSeconds: 10
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "500m"
+            limits:
+              memory: "512Mi"
+              cpu: "1000m"
+          volumeMounts: # is this section required for helm?
+          - name: {{ .Values.configMaps.backend}}
+            mountPath: /config
+          - name: {{ .Values.secrets.backend}}
+            mountPath: /secrets
+          ports:
+            - containerPort: {{ .Values.fridgefreak.port}}
+              protocol: TCP
+      volumes:  
+      - name: {{ .Values.configMaps.backend}} # needed for kustomization configmap generator
+        configMap:
+          name: {{ .Values.configMaps.backend}}
+      - name: {{ .Values.secrets.backend}} # needed for kustomization secret generator
+        secret:
+          secretName: {{ .Values.secrets.backend}}
