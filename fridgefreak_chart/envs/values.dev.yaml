@@ -1,3 +1,0 @@
-
-#this sets from which configmap.{env}.yaml file key=value pairs will be loaded
-env=dev

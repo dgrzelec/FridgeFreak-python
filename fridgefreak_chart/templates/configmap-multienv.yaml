@@ -1,6 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
- name: configmap-multienv
-data:
-{{ printf "environments/configmap.%s.yaml" .Values.env | .Files.Get | indent 2 }}

@@ -1,0 +1,14 @@
+apiVersion: v1
+entries:
+  fridgefreak_chart:
+  - apiVersion: v2
+    appVersion: 1.2.0
+    created: "2025-01-16T11:39:51.464215+01:00"
+    description: A Helm chart for Fridgefreak API app for openshift deployment
+    digest: 9dbe9908a6a1ea526ebac93184dbbd1b6644fb545137f99a72a2217eb6fc842c
+    name: fridgefreak_chart
+    type: application
+    urls:
+    - https://dgrzelec.github.io/FridgeFreak-python/fridgefreak_chart-1.0.0.tgz
+    version: 1.0.0
+generated: "2025-01-16T11:39:51.463725+01:00"
