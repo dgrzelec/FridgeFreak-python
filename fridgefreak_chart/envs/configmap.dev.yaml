@@ -1,0 +1,17 @@
+DEV_CLEVER_CLOUD_DB: brydggsibxis1tgcxqdg
+DEV_CLEVER_CLOUD_HOST: brydggsibxis1tgcxqdg-mysql.services.clever-cloud.com
+DEV_CLEVER_CLOUD_PORT: "3306"
+DEV_CLEVER_CLOUD_TABLE: products
+DEV_CLEVER_CLOUD_USER: umoqspxowm8r0tci
+
+DEV_DATABASE_HOST: mysql-svc
+DEV_DATABASE_NAME: fridgefreak
+DEV_DATABASE_PORT: "3306"
+DEV_DATABASE_USER: fridgefreak_api
+DEV_TABLE_NAME: products
+
+TEST_DATABASE_HOST: mysql-svc
+TEST_DATABASE_NAME: fridgefreak
+TEST_DATABASE_PORT: "3306"
+TEST_DATABASE_USER: testuser
+TEST_TABLE_NAME: test_products
